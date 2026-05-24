@@ -1,0 +1,8 @@
+host: "localhost"
+port: 8443
+db_path: "data/glenmore.sqlite"
+tls:
+  cert_path: ""
+  key_path: ""
+  letsencrypt: false
+
