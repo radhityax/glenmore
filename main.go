@@ -5,12 +5,13 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
 	"fmt"
+
 	"github.com/go-chi/chi/v5"
+	"glenmore/internal/db"
 )
 
 func main() {
@@ -18,6 +19,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("config: %v", err)
 	}
+
+	database, err := db.Open(cfg.DBPath)
+	if err != nil {
+		log.Fatalf("db: %v", err)
+	}
+	defer database.Close()
+
+	if err := db.Migrate(database); err != nil {
+		log.Fatalf("migrate: %v", err)
+	}
+	slog.Info("database migrated")
 
 	router := chi.NewRouter()
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
