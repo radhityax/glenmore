@@ -10,8 +10,8 @@ import (
 	"time"
 	"fmt"
 
-	"github.com/go-chi/chi/v5"
 	"glenmore/internal/db"
+	"glenmore/internal/server"
 )
 
 func main() {
@@ -31,9 +31,9 @@ func main() {
 	}
 	slog.Info("database migrated")
 
-	router := chi.NewRouter()
-	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("glenmore running"))
+	router := server.NewRouter(database, server.Config{
+		Host: cfg.Host,
+		Port: cfg.Port,
 	})
 
 	srv := &http.Server{
