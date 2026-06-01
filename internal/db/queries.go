@@ -9,7 +9,7 @@ type Account struct {
 	ID string `json:"id"`
 	Username string `json:"username"`
 	DisplayName string `json:"display_name,omitempty"`
-	Summary string `json:"summary, omitempty"`
+	Summary string `json:"summary,omitempty"`
 	Domain string `json:"domain"`
 	InboxURL string `json:"inbox_url"`
 	OutboxURL string `json:"outbox_url"`

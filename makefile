@@ -16,7 +16,7 @@ clean:
 	rm -rf data/
 
 test:
-	go test ./.. -v
+	go test ./...
 
 check:
-	go vet ./..
+	go vet ./...
