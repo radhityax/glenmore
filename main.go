@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -23,11 +25,11 @@ type App struct {
 
 func loadConfig() Config {
 	return Config{
-		Domain:   env0r("FLOW_DOMAIN", "localhost"),
-		Port:     env0r("FLOW_PORT", "8080"),
-		Username: env0r("FLOW_USERNAME", "rad"),
-		Token:    os.Getenv("FLOW_TOKEN"),
-		DBPath:   env0r("FLOW_DB", "flow.db"),
+		Domain:   env0r("GLENMORE_DOMAIN", "localhost"),
+		Port:     env0r("GLENMORE_PORT", "8080"),
+		Username: env0r("GLENMORE_USERNAME", "rad"),
+		Token:    os.Getenv("GLENMORE_TOKEN"),
+		DBPath:   env0r("GLENMORE_DB", "glenmore.db"),
 	}
 }
 
@@ -38,7 +40,30 @@ func env0r(x, y string) string {
 	return y
 }
 
+func loadDotEnv(path string) {
+	f, err := os.Open(path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	sc := bufio.NewScanner(f)
+	for sc.Scan() {
+		line := strings.TrimSpace(sc.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		k, v, ok := strings.Cut(line, "=")
+		if !ok {
+			continue
+		}
+		if os.Getenv(k) == "" {
+			os.Setenv(k, v)
+		}
+	}
+}
+
 func main() {
+	loadDotEnv(".env")
 	cfg := loadConfig()
 	if cfg.Token == "" {
 		log.Println("Warning: flow_token is empty")
@@ -62,5 +87,7 @@ func main() {
 
 	log.Printf("flowpub is running on :%s (domain=%s actor=%s", cfg.Port,
 		cfg.Domain, app.ActorURI())
+	mux.HandleFunc("GET /.well-known/webfinger", app.hdlwf)
+	mux.HandleFunc("GET /.well-known/host-meta", app.hdlhm)
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
 }
