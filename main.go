@@ -85,9 +85,15 @@ func main() {
 		w.Write([]byte("ok"))
 	})
 
-	log.Printf("flowpub is running on :%s (domain=%s actor=%s", cfg.Port,
+	log.Printf("glenmorepub is running on :%s (domain=%s actor=%s", cfg.Port,
 		cfg.Domain, app.ActorURI())
 	mux.HandleFunc("GET /.well-known/webfinger", app.hdlwf)
 	mux.HandleFunc("GET /.well-known/host-meta", app.hdlhm)
+	mux.HandleFunc("GET /users/{username}", app.hdla)
+	mux.HandleFunc("GET /users/{username}/outbox", app.hdlo)
+	mux.HandleFunc("GET /users/{username}/posts/{id}", app.hdln)
+	mux.HandleFunc("GET /users/{username}/followers", app.hdlfollowers)
+	mux.HandleFunc("GET /users/{username}/following", app.hdlfollowing)
+
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
 }
